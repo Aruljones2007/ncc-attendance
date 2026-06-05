@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NCC Attendance App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>NCC Attendance Report Generator</h1>
+
+    <label>Year:</label>
+    <input type="text" id="year" placeholder="2nd Year SD">
+
+    <label>Total Strength:</label>
+    <input type="number" id="strength" placeholder="33">
+
+    <h2>Cadets</h2>
+
+    <textarea id="cadetNames" rows="10"
+        placeholder="Enter one cadet name per line"></textarea>
+
+    <br><br>
+
+    <button onclick="loadCadets()">Load Cadets</button>
+
+    <div id="attendanceSection"></div>
+
+    <br>
+
+    <button onclick="generateReport()">Generate Report</button>
+
+    <h2>Generated Report</h2>
+    <textarea id="report" rows="20"></textarea>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
