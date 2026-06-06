@@ -1,7 +1,7 @@
 function loadCadets() {
 
-    const names = document
-        .getElementById("cadetNames")
+    const names =
+        document.getElementById("cadetNames")
         .value
         .split("\n");
 
@@ -12,15 +12,17 @@ function loadCadets() {
         if (name.trim() !== "") {
 
             html += `
-            <div class="cadet">
-                <b>${name}</b><br>
+                <div class="cadet present"
+                     id="cadet${index}"
+                     data-status="Present"
+                     onclick="toggleStatus(${index})">
 
-                <select id="status${index}">
-                    <option>Present</option>
-                    <option>Permission</option>
-                    <option>Absent</option>
-                </select>
-            </div>
+                    <strong>${name}</strong><br>
+                    <span id="label${index}">
+                        Present
+                    </span>
+
+                </div>
             `;
         }
     });
@@ -49,7 +51,9 @@ function generateReport() {
         if (name.trim() !== "") {
 
             const status =
-                document.getElementById("status" + count).value;
+            document
+                .getElementById(`cadet${count}`)
+                .getAttribute("data-status");
 
             if (status === "Present")
                 present.push(name);
@@ -91,4 +95,130 @@ function generateReport() {
     report += "\nSeniors.";
 
     document.getElementById("report").value = report;
+}
+
+// Load saved names automatically
+window.onload = function () {
+
+    const savedNames = localStorage.getItem("cadetNames");
+
+    if (savedNames) {
+        document.getElementById("cadetNames").value = savedNames;
+        loadCadets();
+    }
+};
+
+function saveCadets() {
+
+    const names =
+        document.getElementById("cadetNames").value;
+
+    localStorage.setItem("cadetNames", names);
+
+    alert("Cadet names saved successfully.");
+}
+
+function clearCadets() {
+
+    localStorage.removeItem("cadetNames");
+
+    document.getElementById("cadetNames").value = "";
+
+    document.getElementById("attendanceSection").innerHTML = "";
+
+    alert("Saved names removed.");
+}
+
+function changeColor(select) {
+
+    if(select.value === "Present"){
+        select.style.backgroundColor = "#28a745";
+        select.style.color = "white";
+    }
+
+    else if(select.value === "Permission"){
+        select.style.backgroundColor = "#ffc107";
+        select.style.color = "black";
+    }
+
+    else{
+        select.style.backgroundColor = "#dc3545";
+        select.style.color = "white";
+    }
+}
+
+function toggleStatus(index) {
+
+    const card =
+        document.getElementById(`cadet${index}`);
+
+    const label =
+        document.getElementById(`label${index}`);
+
+    const current =
+        card.getAttribute("data-status");
+
+    if (current === "Present") {
+
+        card.setAttribute(
+            "data-status",
+            "Permission"
+        );
+
+        card.className =
+            "cadet permission";
+
+        label.innerText =
+            "Permission";
+    }
+
+    else if (current === "Permission") {
+
+        card.setAttribute(
+            "data-status",
+            "Absent"
+        );
+
+        card.className =
+            "cadet absent";
+
+        label.innerText =
+            "Absent";
+    }
+
+    else {
+
+        card.setAttribute(
+            "data-status",
+            "Present"
+        );
+
+        card.className =
+            "cadet present";
+
+        label.innerText =
+            "Present";
+    }
+}
+
+function copyReport() {
+
+    const report =
+        document.getElementById("report");
+
+    if (report.value.trim() === "") {
+
+        alert("Generate a report first.");
+        return;
+    }
+
+    navigator.clipboard.writeText(report.value)
+        .then(() => {
+            alert("Report copied successfully.");
+        })
+        .catch(() => {
+            report.select();
+            document.execCommand("copy");
+            alert("Report copied successfully.");
+        });
 }
