@@ -92,7 +92,7 @@ function generateReport() {
         report += `${name}\n`;
     });
     
-    report += "\nSeniors.";
+    
 
     document.getElementById("report").value = report;
 }
