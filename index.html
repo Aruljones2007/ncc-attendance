@@ -9,11 +9,18 @@
 
     <h1>NCC Attendance Report Generator</h1>
 
+    <!-- Tab Bar for Switching Sets of Names -->
+    <div class="tabs">
+        <button type="button" class="tab-btn active" data-tab="tab1" onclick="switchTab('tab1')">Set 1</button>
+        <button type="button" class="tab-btn" data-tab="tab2" onclick="switchTab('tab2')">Set 2</button>
+        <button type="button" class="tab-btn" data-tab="tab3" onclick="switchTab('tab3')">Set 3</button>
+    </div>
+
     <label>Year:</label>
     <input type="text" id="year" placeholder="2nd Year SD">
 
-    <label>Total Strength:</label>
-    <input type="number" id="strength" placeholder="33">
+    <label>Total Strength (Auto-Calculated):</label>
+    <input type="number" id="strength" placeholder="0" readonly>
 
     <h2>Cadets</h2>
 
@@ -32,7 +39,7 @@
 
     <button onclick="generateReport()">Generate Report</button>
     <button class="copy-btn" onclick="copyReport()">
-    📋 Copy Report
+        📋 Copy Report
     </button>
 
     <h2>Generated Report</h2>

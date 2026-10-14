@@ -4,7 +4,6 @@
 
 body{
     font-family:Arial,sans-serif;
-    margin:15px;
     max-width:900px;
     margin:auto;
     padding:15px;
@@ -24,6 +23,12 @@ select{
     font-size:16px;
 }
 
+#strength[readonly]{
+    background-color:#e9ecef;
+    color:#495057;
+    cursor:not-allowed;
+}
+
 button{
     padding:12px 16px;
     margin:5px;
@@ -33,10 +38,62 @@ button{
     font-size:16px;
 }
 
+/* Tab Bar Styles */
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
+}
+
+.tab-btn{
+    flex:1;
+    margin:0;
+    background:#e0e0e0;
+    color:#333;
+    font-weight:bold;
+    transition:0.2s;
+}
+
+.tab-btn.active{
+    background:#007bff;
+    color:white;
+}
+
 .cadet{
-    padding:12px;
+    padding:15px;
     margin:10px 0;
-    border-radius:8px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s;
+    color:white;
+    font-size:18px;
+}
+
+.present{
+    background:#28a745;
+}
+
+.permission{
+    background:#ffc107;
+    color:black;
+}
+
+.late-permission{
+    background:#fd7e14;
+    color:white;
+}
+
+.absent{
+    background:#dc3545;
+}
+
+.cadet:hover{
+    transform:scale(1.02);
+}
+
+.copy-btn{
+    background:#007bff;
+    color:white;
 }
 
 #report{
@@ -57,42 +114,10 @@ button{
         width:100%;
         margin:5px 0;
     }
-}
 
-.cadet{
-
-    padding:15px;
-    margin:10px 0;
-
-    border-radius:10px;
-
-    cursor:pointer;
-
-    transition:0.3s;
-
-    color:white;
-
-    font-size:18px;
-}
-
-.present{
-    background:#28a745;
-}
-
-.permission{
-    background:#ffc107;
-    color:black;
-}
-
-.absent{
-    background:#dc3545;
-}
-
-.cadet:hover{
-    transform:scale(1.02);
-}
-
-.copy-btn{
-    background:#007bff;
-    color:white;
+    /* Keep tabs horizontal on mobile screens */
+    .tab-btn{
+        width:auto;
+        margin:0;
+    }
 }
