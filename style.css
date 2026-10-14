@@ -4,7 +4,6 @@
 
 body{
     font-family:Arial,sans-serif;
-    margin:15px;
     max-width:900px;
     margin:auto;
     padding:15px;
@@ -24,6 +23,12 @@ select{
     font-size:16px;
 }
 
+#strength[readonly]{
+    background-color:#e9ecef;
+    color:#495057;
+    cursor:not-allowed;
+}
+
 button{
     padding:12px 16px;
     margin:5px;
@@ -33,45 +38,34 @@ button{
     font-size:16px;
 }
 
-.cadet{
-    padding:12px;
-    margin:10px 0;
-    border-radius:8px;
+/* Tab Bar Styles */
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
 }
 
-#report{
-    min-height:300px;
+.tab-btn{
+    flex:1;
+    margin:0;
+    background:#e0e0e0;
+    color:#333;
+    font-weight:bold;
+    transition:0.2s;
 }
 
-@media(max-width:600px){
-
-    body{
-        padding:10px;
-    }
-
-    h1{
-        font-size:24px;
-    }
-
-    button{
-        width:100%;
-        margin:5px 0;
-    }
+.tab-btn.active{
+    background:#007bff;
+    color:white;
 }
 
 .cadet{
-
     padding:15px;
     margin:10px 0;
-
     border-radius:10px;
-
     cursor:pointer;
-
     transition:0.3s;
-
     color:white;
-
     font-size:18px;
 }
 
@@ -95,4 +89,30 @@ button{
 .copy-btn{
     background:#007bff;
     color:white;
+}
+
+#report{
+    min-height:300px;
+}
+
+@media(max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    h1{
+        font-size:24px;
+    }
+
+    button{
+        width:100%;
+        margin:5px 0;
+    }
+
+    /* Keep tabs horizontal on mobile screens */
+    .tab-btn{
+        width:auto;
+        margin:0;
+    }
 }
