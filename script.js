@@ -220,4 +220,56 @@ function generateReport() {
 function clearCadets() {
     localStorage.removeItem(`cadetNames_${currentTab}`);
     localStorage.removeItem(`cadetStatuses_${currentTab}`);
-    
+    localStorage.removeItem(`cadetReport_${currentTab}`);
+    document.getElementById("cadetNames").value = "";
+    document.getElementById("attendanceSection").innerHTML = "";
+    document.getElementById("report").value = "";
+    updateStrength();
+    alert("Saved names and cards removed.");
+}
+
+function copyReport() {
+    const report = document.getElementById("report");
+
+    if (report.value.trim() === "") {
+        alert("Generate a report first.");
+        return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(report.value)
+            .then(() => alert("Report copied successfully."))
+            .catch(() => fallbackCopy(report));
+    } else {
+        fallbackCopy(report);
+    }
+}
+
+function fallbackCopy(element) {
+    element.select();
+    document.execCommand("copy");
+    alert("Report copied successfully.");
+}
+
+window.onload = function () {
+    const oldSavedNames = localStorage.getItem("cadetNames");
+    if (oldSavedNames && !localStorage.getItem("cadetNames_tab1")) {
+        localStorage.setItem("cadetNames_tab1", oldSavedNames);
+    }
+
+    const yearInput = document.getElementById("year");
+    if (yearInput) {
+        yearInput.addEventListener("input", saveYear);
+        yearInput.addEventListener("change", saveYear);
+    }
+
+    const cadetNamesInput = document.getElementById("cadetNames");
+    if (cadetNamesInput) {
+        cadetNamesInput.addEventListener("input", function () {
+            persistNamesToStorage();
+            renderCadets();
+        });
+    }
+
+    switchTab(currentTab);
+};
