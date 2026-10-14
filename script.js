@@ -82,6 +82,7 @@ function generateReport() {
 
     let present = [];
     let permission = [];
+    let latePermission = [];
     let absent = [];
 
     names.forEach((name, index) => {
@@ -94,6 +95,8 @@ function generateReport() {
             present.push(name);
         } else if (status === "Permission") {
             permission.push(name);
+        } else if (status === "Late Fallin Permission") {
+            latePermission.push(name);
         } else {
             absent.push(name);
         }
@@ -107,17 +110,31 @@ function generateReport() {
         report += `${name}\n`;
     });
 
-    report += `\n${permission.length} permission seniors,\n\n`;
-    permission.forEach(name => {
-        report += `${name}\n`;
-    });
+    // Only include Permission section if count > 0
+    if (permission.length > 0) {
+        report += `\n${permission.length} permission seniors,\n\n`;
+        permission.forEach(name => {
+            report += `${name}\n`;
+        });
+    }
 
-    report += `\n${absent.length} absent seniors,\n\n`;
-    absent.forEach(name => {
-        report += `${name}\n`;
-    });
+    // Only include Late Fallin Permission section if count > 0
+    if (latePermission.length > 0) {
+        report += `\n${latePermission.length} late fallin permission seniors,\n\n`;
+        latePermission.forEach(name => {
+            report += `${name}\n`;
+        });
+    }
 
-    document.getElementById("report").value = report;
+    // Only include Absent section if count > 0
+    if (absent.length > 0) {
+        report += `\n${absent.length} absent seniors,\n\n`;
+        absent.forEach(name => {
+            report += `${name}\n`;
+        });
+    }
+
+    document.getElementById("report").value = report.trim();
 }
 
 function toggleStatus(index) {
@@ -133,6 +150,10 @@ function toggleStatus(index) {
         card.className = "cadet permission";
         label.innerText = "Permission";
     } else if (current === "Permission") {
+        card.setAttribute("data-status", "Late Fallin Permission");
+        card.className = "cadet late-permission";
+        label.innerText = "Late Fallin Permission";
+    } else if (current === "Late Fallin Permission") {
         card.setAttribute("data-status", "Absent");
         card.className = "cadet absent";
         label.innerText = "Absent";
