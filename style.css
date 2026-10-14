@@ -78,6 +78,11 @@ button{
     color:black;
 }
 
+.late-permission{
+    background:#fd7e14;
+    color:white;
+}
+
 .absent{
     background:#dc3545;
 }
