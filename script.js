@@ -20,11 +20,19 @@ function updateStrength() {
     return names.length;
 }
 
-// Permanently save the Year value for the active tab whenever modified
+// Permanently save the Year value for the active tab
 function saveYear() {
     const yearInput = document.getElementById("year");
     if (yearInput) {
         localStorage.setItem(`cadetYear_${currentTab}`, yearInput.value);
+    }
+}
+
+// Permanently save the Cadet Names in the textarea for the active tab
+function persistNamesToStorage() {
+    const namesInput = document.getElementById("cadetNames");
+    if (namesInput) {
+        localStorage.setItem(`cadetNames_${currentTab}`, namesInput.value);
     }
 }
 
@@ -46,25 +54,42 @@ function switchTab(tabId) {
     const savedNames = localStorage.getItem(`cadetNames_${currentTab}`) || "";
     document.getElementById("cadetNames").value = savedNames;
 
-    // Clear old report text when switching tabs
-    document.getElementById("report").value = "";
+    // Restore saved report for this tab (if any)
+    const savedReport = localStorage.getItem(`cadetReport_${currentTab}`) || "";
+    document.getElementById("report").value = savedReport;
 
-    // Render cadet cards and update auto-strength
-    loadCadets();
+    // Render cadet cards and restore their saved attendance statuses
+    renderCadets();
 }
 
-function loadCadets() {
+// Render cadet cards on screen using saved statuses
+function renderCadets() {
     const names = getCleanCadetNames();
     let html = "";
 
+    const savedStatuses = JSON.parse(
+        localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}"
+    );
+
     names.forEach((name, index) => {
+        const status = savedStatuses[index] || "Present";
+        let statusClass = "present";
+
+        if (status === "Permission") {
+            statusClass = "permission";
+        } else if (status === "Late Fallin Permission") {
+            statusClass = "late-permission";
+        } else if (status === "Absent") {
+            statusClass = "absent";
+        }
+
         html += `
-            <div class="cadet present"
+            <div class="cadet ${statusClass}"
                  id="cadet${index}"
-                 data-status="Present"
+                 data-status="${status}"
                  onclick="toggleStatus(${index})">
                 <strong>${name}</strong><br>
-                <span id="label${index}">Present</span>
+                <span id="label${index}">${status}</span>
             </div>
         `;
     });
@@ -73,12 +98,65 @@ function loadCadets() {
     updateStrength();
 }
 
+// Load Cadets button: saves current list permanently AND loads cards
+function loadCadets() {
+    persistNamesToStorage();
+    saveYear();
+    renderCadets();
+}
+
+// Save Names button: saves current list permanently AND loads/updates cards
+function saveCadets() {
+    persistNamesToStorage();
+    saveYear();
+    renderCadets();
+    alert("Cadet names and cards saved permanently.");
+}
+
+// Toggle card status and save it immediately so it survives page refresh
+function toggleStatus(index) {
+    const card = document.getElementById(`cadet${index}`);
+    const label = document.getElementById(`label${index}`);
+
+    if (!card || !label) return;
+
+    const current = card.getAttribute("data-status");
+    let nextStatus = "Present";
+    let nextClass = "cadet present";
+
+    if (current === "Present") {
+        nextStatus = "Permission";
+        nextClass = "cadet permission";
+    } else if (current === "Permission") {
+        nextStatus = "Late Fallin Permission";
+        nextClass = "cadet late-permission";
+    } else if (current === "Late Fallin Permission") {
+        nextStatus = "Absent";
+        nextClass = "cadet absent";
+    } else {
+        nextStatus = "Present";
+        nextClass = "cadet present";
+    }
+
+    card.setAttribute("data-status", nextStatus);
+    card.className = nextClass;
+    label.innerText = nextStatus;
+
+    // Save updated status for this cadet card
+    const savedStatuses = JSON.parse(
+        localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}"
+    );
+    savedStatuses[index] = nextStatus;
+    localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
+}
+
 function generateReport() {
     const year = document.getElementById("year").value;
     const names = getCleanCadetNames();
     const strength = updateStrength();
 
     saveYear();
+    persistNamesToStorage();
 
     let present = [];
     let permission = [];
@@ -110,7 +188,7 @@ function generateReport() {
         report += `${name}\n`;
     });
 
-    // Only include Permission section if count > 0
+    // Only show Permission if greater than 0
     if (permission.length > 0) {
         report += `\n${permission.length} permission seniors,\n\n`;
         permission.forEach(name => {
@@ -118,7 +196,7 @@ function generateReport() {
         });
     }
 
-    // Only include Late Fallin Permission section if count > 0
+    // Only show Late Fallin Permission if greater than 0
     if (latePermission.length > 0) {
         report += `\n${latePermission.length} late fallin permission seniors,\n\n`;
         latePermission.forEach(name => {
@@ -126,7 +204,7 @@ function generateReport() {
         });
     }
 
-    // Only include Absent section if count > 0
+    // Only show Absent if greater than 0
     if (absent.length > 0) {
         report += `\n${absent.length} absent seniors,\n\n`;
         absent.forEach(name => {
@@ -134,96 +212,12 @@ function generateReport() {
         });
     }
 
-    document.getElementById("report").value = report.trim();
-}
-
-function toggleStatus(index) {
-    const card = document.getElementById(`cadet${index}`);
-    const label = document.getElementById(`label${index}`);
-
-    if (!card || !label) return;
-
-    const current = card.getAttribute("data-status");
-
-    if (current === "Present") {
-        card.setAttribute("data-status", "Permission");
-        card.className = "cadet permission";
-        label.innerText = "Permission";
-    } else if (current === "Permission") {
-        card.setAttribute("data-status", "Late Fallin Permission");
-        card.className = "cadet late-permission";
-        label.innerText = "Late Fallin Permission";
-    } else if (current === "Late Fallin Permission") {
-        card.setAttribute("data-status", "Absent");
-        card.className = "cadet absent";
-        label.innerText = "Absent";
-    } else {
-        card.setAttribute("data-status", "Present");
-        card.className = "cadet present";
-        label.innerText = "Present";
-    }
-}
-
-function saveCadets() {
-    const names = document.getElementById("cadetNames").value;
-    localStorage.setItem(`cadetNames_${currentTab}`, names);
-    saveYear();
-    updateStrength();
-    alert("Cadet names saved successfully.");
+    const finalReport = report.trim();
+    document.getElementById("report").value = finalReport;
+    localStorage.setItem(`cadetReport_${currentTab}`, finalReport);
 }
 
 function clearCadets() {
     localStorage.removeItem(`cadetNames_${currentTab}`);
-    document.getElementById("cadetNames").value = "";
-    document.getElementById("attendanceSection").innerHTML = "";
-    updateStrength();
-    alert("Saved names removed.");
-}
-
-function copyReport() {
-    const report = document.getElementById("report");
-
-    if (report.value.trim() === "") {
-        alert("Generate a report first.");
-        return;
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(report.value)
-            .then(() => alert("Report copied successfully."))
-            .catch(() => fallbackCopy(report));
-    } else {
-        fallbackCopy(report);
-    }
-}
-
-function fallbackCopy(element) {
-    element.select();
-    document.execCommand("copy");
-    alert("Report copied successfully.");
-}
-
-// Load saved data automatically on start
-window.onload = function () {
-    // Migrate old saved names into Set 1 (tab1) if they exist
-    const oldSavedNames = localStorage.getItem("cadetNames");
-    if (oldSavedNames && !localStorage.getItem("cadetNames_tab1")) {
-        localStorage.setItem("cadetNames_tab1", oldSavedNames);
-    }
-
-    // Automatically save Year whenever the user types in the Year box
-    const yearInput = document.getElementById("year");
-    if (yearInput) {
-        yearInput.addEventListener("input", saveYear);
-        yearInput.addEventListener("change", saveYear);
-    }
-
-    // Automatically update Total Strength as names are typed or pasted
-    const cadetNamesInput = document.getElementById("cadetNames");
-    if (cadetNamesInput) {
-        cadetNamesInput.addEventListener("input", updateStrength);
-    }
-
-    // Initialize the last active tab
-    switchTab(currentTab);
-};
+    localStorage.removeItem(`cadetStatuses_${currentTab}`);
+    
