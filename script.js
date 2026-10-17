@@ -231,6 +231,32 @@ function fallbackCopy(element) {
     alert("Report copied successfully.");
 }
 
+// Bulk Reset: Clears all saved statuses for the current tab, defaulting everyone to Present
+function resetAllToPresent() {
+    if (confirm("Reset all cadets in this tab to Present?")) {
+        // Clearing the specific status memory forces the app to default to Present
+        localStorage.removeItem(`cadetStatuses_${currentTab}`);
+        renderCadets();
+        alert("All cadets reset to Present.");
+    }
+}
+
+// WhatsApp Sharing: Encodes the text and opens the WhatsApp app/web link
+function shareToWhatsApp() {
+    const report = document.getElementById("report");
+    
+    if (report.value.trim() === "") {
+        alert("Generate a report first.");
+        return;
+    }
+    
+    // Convert the text format so URLs can read spaces and new lines
+    const encodedText = encodeURIComponent(report.value);
+    
+    // Opens WhatsApp (works on both mobile app and desktop web)
+    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+}
+
 window.onload = function () {
     const oldSavedNames = localStorage.getItem("cadetNames");
     if (oldSavedNames && !localStorage.getItem("cadetNames_tab1")) {
