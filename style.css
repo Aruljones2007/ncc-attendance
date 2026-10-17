@@ -1,123 +1,165 @@
-*{
-    box-sizing:border-box;
+/* =========================================
+   GLOBAL STYLES
+   ========================================= */
+* {
+    box-sizing: border-box;
 }
 
-body{
-    font-family:Arial,sans-serif;
-    max-width:900px;
-    margin:auto;
-    padding:15px;
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
 }
 
-h1{
-    text-align:center;
+h1, h2 {
+    text-align: center;
+    color: #333;
 }
 
+/* =========================================
+   INPUTS & TEXT AREAS
+   ========================================= */
 input,
 textarea,
-select{
-    width:100%;
-    padding:12px;
-    margin-top:5px;
-    margin-bottom:10px;
-    font-size:16px;
+select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
-#strength[readonly]{
-    background-color:#e9ecef;
-    color:#495057;
-    cursor:not-allowed;
+#strength[readonly] {
+    background-color: #e9ecef;
+    color: #495057;
+    cursor: not-allowed;
 }
 
-button{
-    padding:12px 16px;
-    margin:5px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:16px;
+#report {
+    min-height: 300px;
 }
 
-/* Tab Bar Styles */
-.tabs{
-    display:flex;
-    gap:8px;
-    margin-bottom:15px;
+/* =========================================
+   BUTTONS
+   ========================================= */
+button {
+    padding: 12px 16px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    background: #e0e0e0;
+    color: #333;
+    font-weight: bold;
+    transition: 0.2s;
+}
+/* Add this to make buttons visibly click/press down */
+button:active {
+    transform: scale(0.95);
+    opacity: 0.8;
 }
 
-.tab-btn{
-    flex:1;
-    margin:0;
-    background:#e0e0e0;
-    color:#333;
-    font-weight:bold;
-    transition:0.2s;
+/* WhatsApp Button Color */
+.whatsapp-btn {
+    background: #25D366;
+    color: white;
+}
+button:hover {
+    opacity: 0.9;
 }
 
-.tab-btn.active{
-    background:#007bff;
-    color:white;
+.copy-btn {
+    background: #007bff;
+    color: white;
 }
 
-.cadet{
-    padding:15px;
-    margin:10px 0;
-    border-radius:10px;
-    cursor:pointer;
-    transition:0.3s;
-    color:white;
-    font-size:18px;
+/* =========================================
+   TAB BAR
+   ========================================= */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
 }
 
-.present{
-    background:#28a745;
+.tab-btn {
+    flex: 1;
+    margin: 0;
 }
 
-.permission{
-    background:#ffc107;
-    color:black;
+.tab-btn.active {
+    background: #007bff;
+    color: white;
 }
 
-.late-permission{
-    background:#fd7e14;
-    color:white;
+/* =========================================
+   CADET ROWS & RADIO BUTTONS
+   ========================================= */
+.cadet-row {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    background: #f8f9fa; /* Default color before selection */
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.absent{
-    background:#dc3545;
+.cadet-row strong {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 12px;
 }
 
-.cadet:hover{
-    transform:scale(1.02);
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.copy-btn{
-    background:#007bff;
-    color:white;
+.radio-group label {
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-#report{
-    min-height:300px;
+.radio-group input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
 
-@media(max-width:600px){
+/* Dynamic Row Colors based on attendance status */
+.cadet-row.present { background: #28a745; color: white; border-color: #28a745; }
+.cadet-row.permission { background: #ffc107; color: black; border-color: #ffc107; }
+.cadet-row.late-permission { background: #007bff; color: white; border-color: #007bff; }
+.cadet-row.absent { background: #dc3545; color: white; border-color: #dc3545; }
 
-    body{
-        padding:10px;
+/* =========================================
+   MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
     }
 
-    h1{
-        font-size:24px;
+    h1 {
+        font-size: 24px;
     }
 
-    button{
-        width:100%;
-        margin:5px 0;
+    button {
+        width: 100%; /* Makes buttons full width on small screens */
     }
 
-    /* Keep tabs horizontal on mobile screens */
-    .tab-btn{
-        width:auto;
-        margin:0;
+    /* Keeps tabs side-by-side instead of stacking on phones */
+    .tab-btn {
+        width: auto;
+        margin: 0;
     }
 }
