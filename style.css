@@ -57,7 +57,17 @@ button {
     font-weight: bold;
     transition: 0.2s;
 }
+/* Add this to make buttons visibly click/press down */
+button:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
 
+/* WhatsApp Button Color */
+.whatsapp-btn {
+    background: #25D366;
+    color: white;
+}
 button:hover {
     opacity: 0.9;
 }
