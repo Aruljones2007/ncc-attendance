@@ -138,7 +138,7 @@ button:hover {
 /* Dynamic Row Colors based on attendance status */
 .cadet-row.present { background: #28a745; color: white; border-color: #28a745; }
 .cadet-row.permission { background: #ffc107; color: black; border-color: #ffc107; }
-.cadet-row.late-permission { background: #fd7e14; color: white; border-color: #fd7e14; }
+.cadet-row.late-permission { background: #007bff; color: white; border-color: #007bff; }
 .cadet-row.absent { background: #dc3545; color: white; border-color: #dc3545; }
 
 /* =========================================
