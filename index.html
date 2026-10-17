@@ -29,6 +29,10 @@
 
     <br><br>
     
+   <br><br>
+    
+    <!-- Added Reset Button here -->
+    <button onclick="resetAllToPresent()">Reset All to Present</button>
     <button onclick="clearCadets()">Clear Saved Names</button>
 
     <div id="attendanceSection"></div>
@@ -36,9 +40,9 @@
     <br>
 
     <button onclick="generateReport()">Generate Report</button>
-    <button class="copy-btn" onclick="copyReport()">
-        📋 Copy Report
-    </button>
+    <button class="copy-btn" onclick="copyReport()">📋 Copy Report</button>
+    <!-- Added WhatsApp Button here -->
+    <button class="whatsapp-btn" onclick="shareToWhatsApp()">📲 WhatsApp</button>
 
     <h2>Generated Report</h2>
     <textarea id="report" rows="20"></textarea>
