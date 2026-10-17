@@ -1,6 +1,6 @@
 let currentTab = localStorage.getItem("activeCadetTab") || "tab1";
 
-// Clean and filter names so indices always match
+// Clean and filter names
 function getCleanCadetNames() {
     return document
         .getElementById("cadetNames")
@@ -10,7 +10,7 @@ function getCleanCadetNames() {
         .filter(name => name !== "");
 }
 
-// Auto-calculate strength based on total valid cadet names
+// Auto-calculate strength
 function updateStrength() {
     const names = getCleanCadetNames();
     const strengthInput = document.getElementById("strength");
@@ -20,7 +20,6 @@ function updateStrength() {
     return names.length;
 }
 
-// Permanently save the Year value for the active tab
 function saveYear() {
     const yearInput = document.getElementById("year");
     if (yearInput) {
@@ -28,7 +27,6 @@ function saveYear() {
     }
 }
 
-// Permanently save the Cadet Names in the textarea for the active tab
 function persistNamesToStorage() {
     const namesInput = document.getElementById("cadetNames");
     if (namesInput) {
@@ -36,52 +34,50 @@ function persistNamesToStorage() {
     }
 }
 
-// Switch between tabs (Set 1, Set 2, Set 3)
+// Switch between tabs
 function switchTab(tabId) {
     currentTab = tabId;
     localStorage.setItem("activeCadetTab", currentTab);
 
-    // Highlight active tab button
     document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId);
     });
 
-    // Restore saved year for this tab
     const savedYear = localStorage.getItem(`cadetYear_${currentTab}`);
     document.getElementById("year").value = savedYear !== null ? savedYear : "";
 
-    // Restore saved cadet names for this tab
     const savedNames = localStorage.getItem(`cadetNames_${currentTab}`) || "";
     document.getElementById("cadetNames").value = savedNames;
 
-    // Restore saved report for this tab (if any)
     const savedReport = localStorage.getItem(`cadetReport_${currentTab}`) || "";
     document.getElementById("report").value = savedReport;
 
-    // Render cadet cards and restore their saved attendance statuses
     renderCadets();
 }
 
-// Render cadet rows with radio buttons and dynamic colors
+// Render cadet rows with radio buttons
 function renderCadets() {
     const names = getCleanCadetNames();
     let html = "";
 
-    const savedStatuses = JSON.parse(
-        localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}"
-    );
+    // Safety check in case local storage data is corrupted
+    let savedStatuses = {};
+    try {
+        savedStatuses = JSON.parse(localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}");
+    } catch (e) {
+        savedStatuses = {};
+    }
 
     names.forEach((name, index) => {
         const status = savedStatuses[index] || "Present";
         
-        // Assign the correct background color class based on status
         let rowClass = "present";
         if (status === "Permission") rowClass = "permission";
         if (status === "Late Fallin Permission") rowClass = "late-permission";
         if (status === "Absent") rowClass = "absent";
 
         html += `
-            <div class="cadet-row ${rowClass}" id="cadetRow${index}" data-status="${status}">
+            <div class="cadet-row ${rowClass}" id="cadetRow${index}">
                 <strong>${name}</strong>
                 <div class="radio-group">
                     <label>
@@ -113,28 +109,28 @@ function renderCadets() {
     updateStrength();
 }
 
-// Update status and row color directly when a radio button is selected
+// Update status directly when radio clicked
 function updateCadetStatus(index, newStatus) {
     const row = document.getElementById(`cadetRow${index}`);
-    if (!row) return;
+    if (row) {
+        row.className = "cadet-row present"; 
+        if (newStatus === "Permission") row.className = "cadet-row permission";
+        if (newStatus === "Late Fallin Permission") row.className = "cadet-row late-permission";
+        if (newStatus === "Absent") row.className = "cadet-row absent";
+    }
 
-    // Update the HTML data attribute
-    row.setAttribute("data-status", newStatus);
+    let savedStatuses = {};
+    try {
+        savedStatuses = JSON.parse(localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}");
+    } catch (e) {
+        savedStatuses = {};
+    }
     
-    // Instantly update the row's background color class
-    row.className = "cadet-row present"; 
-    if (newStatus === "Permission") row.className = "cadet-row permission";
-    if (newStatus === "Late Fallin Permission") row.className = "cadet-row late-permission";
-    if (newStatus === "Absent") row.className = "cadet-row absent";
-
-    // Save updated status to localStorage
-    const savedStatuses = JSON.parse(
-        localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}"
-    );
     savedStatuses[index] = newStatus;
     localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
 }
 
+// Fixed Report Generator: Reads directly from local storage memory
 function generateReport() {
     const year = document.getElementById("year").value;
     const names = getCleanCadetNames();
@@ -143,17 +139,20 @@ function generateReport() {
     saveYear();
     persistNamesToStorage();
 
+    let savedStatuses = {};
+    try {
+        savedStatuses = JSON.parse(localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}");
+    } catch (e) {
+        savedStatuses = {};
+    }
+
     let present = [];
     let permission = [];
     let latePermission = [];
     let absent = [];
 
     names.forEach((name, index) => {
-        // FIXED: Now correctly looks for 'cadetRow' instead of 'cadet'
-        const card = document.getElementById(`cadetRow${index}`);
-        if (!card) return;
-
-        const status = card.getAttribute("data-status");
+        const status = savedStatuses[index] || "Present";
 
         if (status === "Present") {
             present.push(name);
@@ -174,7 +173,6 @@ function generateReport() {
         report += `${name}\n`;
     });
 
-    // Only show Permission if greater than 0
     if (permission.length > 0) {
         report += `\n${permission.length} permission seniors,\n\n`;
         permission.forEach(name => {
@@ -182,7 +180,6 @@ function generateReport() {
         });
     }
 
-    // Only show Late Fallin Permission if greater than 0
     if (latePermission.length > 0) {
         report += `\n${latePermission.length} late fallin permission seniors,\n\n`;
         latePermission.forEach(name => {
@@ -190,7 +187,6 @@ function generateReport() {
         });
     }
 
-    // Only show Absent if greater than 0
     if (absent.length > 0) {
         report += `\n${absent.length} absent seniors,\n\n`;
         absent.forEach(name => {
@@ -216,12 +212,10 @@ function clearCadets() {
 
 function copyReport() {
     const report = document.getElementById("report");
-
     if (report.value.trim() === "") {
         alert("Generate a report first.");
         return;
     }
-
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(report.value)
             .then(() => alert("Report copied successfully."))
