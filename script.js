@@ -63,6 +63,7 @@ function switchTab(tabId) {
 }
 
 // Render cadet cards on screen using saved statuses
+// Render cadet rows with radio buttons using saved statuses
 function renderCadets() {
     const names = getCleanCadetNames();
     let html = "";
@@ -73,23 +74,32 @@ function renderCadets() {
 
     names.forEach((name, index) => {
         const status = savedStatuses[index] || "Present";
-        let statusClass = "present";
-
-        if (status === "Permission") {
-            statusClass = "permission";
-        } else if (status === "Late Fallin Permission") {
-            statusClass = "late-permission";
-        } else if (status === "Absent") {
-            statusClass = "absent";
-        }
 
         html += `
-            <div class="cadet ${statusClass}"
-                 id="cadet${index}"
-                 data-status="${status}"
-                 onclick="toggleStatus(${index})">
-                <strong>${name}</strong><br>
-                <span id="label${index}">${status}</span>
+            <div class="cadet-row" id="cadetRow${index}">
+                <strong>${name}</strong>
+                <div class="radio-group" id="cadet${index}" data-status="${status}">
+                    <label>
+                        <input type="radio" name="status_${index}" value="Present" 
+                            ${status === "Present" ? "checked" : ""} 
+                            onchange="updateCadetStatus(${index}, 'Present')"> Present
+                    </label>
+                    <label>
+                        <input type="radio" name="status_${index}" value="Permission" 
+                            ${status === "Permission" ? "checked" : ""} 
+                            onchange="updateCadetStatus(${index}, 'Permission')"> Permission
+                    </label>
+                    <label>
+                        <input type="radio" name="status_${index}" value="Late Fallin Permission" 
+                            ${status === "Late Fallin Permission" ? "checked" : ""} 
+                            onchange="updateCadetStatus(${index}, 'Late Fallin Permission')"> Late
+                    </label>
+                    <label>
+                        <input type="radio" name="status_${index}" value="Absent" 
+                            ${status === "Absent" ? "checked" : ""} 
+                            onchange="updateCadetStatus(${index}, 'Absent')"> Absent
+                    </label>
+                </div>
             </div>
         `;
     });
@@ -97,6 +107,22 @@ function renderCadets() {
     document.getElementById("attendanceSection").innerHTML = html;
     updateStrength();
 }
+
+// Update status directly when a radio button is selected
+function updateCadetStatus(index, newStatus) {
+    const container = document.getElementById(`cadet${index}`);
+    if (!container) return;
+
+    container.setAttribute("data-status", newStatus);
+
+    // Save updated status to localStorage
+    const savedStatuses = JSON.parse(
+        localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}"
+    );
+    savedStatuses[index] = newStatus;
+    localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
+}
+
 
 // Load Cadets button: saves current list permanently AND loads cards
 function loadCadets() {
@@ -114,7 +140,7 @@ function saveCadets() {
 }
 
 // Toggle card status and save it immediately so it survives page refresh
-function toggleStatus(index) {
+/*function toggleStatus(index) {
     const card = document.getElementById(`cadet${index}`);
     const label = document.getElementById(`label${index}`);
 
@@ -148,7 +174,7 @@ function toggleStatus(index) {
     );
     savedStatuses[index] = nextStatus;
     localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
-}
+}*/
 
 function generateReport() {
     const year = document.getElementById("year").value;
