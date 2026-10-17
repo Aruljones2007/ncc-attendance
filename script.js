@@ -200,14 +200,17 @@ function generateReport() {
 }
 
 function clearCadets() {
-    localStorage.removeItem(`cadetNames_${currentTab}`);
-    localStorage.removeItem(`cadetStatuses_${currentTab}`);
-    localStorage.removeItem(`cadetReport_${currentTab}`);
-    document.getElementById("cadetNames").value = "";
-    document.getElementById("attendanceSection").innerHTML = "";
-    document.getElementById("report").value = "";
-    updateStrength();
-    alert("Saved names and cards removed.");
+    // Adds a warning prompt before deleting
+    if (confirm("WARNING: This will delete all saved names, statuses, and reports for this tab. Are you sure?")) {
+        localStorage.removeItem(`cadetNames_${currentTab}`);
+        localStorage.removeItem(`cadetStatuses_${currentTab}`);
+        localStorage.removeItem(`cadetReport_${currentTab}`);
+        document.getElementById("cadetNames").value = "";
+        document.getElementById("attendanceSection").innerHTML = "";
+        document.getElementById("report").value = "";
+        updateStrength();
+        alert("Saved names and cards removed.");
+    }
 }
 
 function copyReport() {
