@@ -149,7 +149,8 @@ function generateReport() {
     let absent = [];
 
     names.forEach((name, index) => {
-        const card = document.getElementById(`cadet${index}`);
+        // FIXED: Now correctly looks for 'cadetRow' instead of 'cadet'
+        const card = document.getElementById(`cadetRow${index}`);
         if (!card) return;
 
         const status = card.getAttribute("data-status");
