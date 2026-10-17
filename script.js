@@ -62,8 +62,7 @@ function switchTab(tabId) {
     renderCadets();
 }
 
-// Render cadet cards on screen using saved statuses
-// Render cadet rows with radio buttons using saved statuses
+// Render cadet rows with radio buttons and dynamic colors
 function renderCadets() {
     const names = getCleanCadetNames();
     let html = "";
@@ -74,11 +73,17 @@ function renderCadets() {
 
     names.forEach((name, index) => {
         const status = savedStatuses[index] || "Present";
+        
+        // Assign the correct background color class based on status
+        let rowClass = "present";
+        if (status === "Permission") rowClass = "permission";
+        if (status === "Late Fallin Permission") rowClass = "late-permission";
+        if (status === "Absent") rowClass = "absent";
 
         html += `
-            <div class="cadet-row" id="cadetRow${index}">
+            <div class="cadet-row ${rowClass}" id="cadetRow${index}" data-status="${status}">
                 <strong>${name}</strong>
-                <div class="radio-group" id="cadet${index}" data-status="${status}">
+                <div class="radio-group">
                     <label>
                         <input type="radio" name="status_${index}" value="Present" 
                             ${status === "Present" ? "checked" : ""} 
@@ -108,12 +113,19 @@ function renderCadets() {
     updateStrength();
 }
 
-// Update status directly when a radio button is selected
+// Update status and row color directly when a radio button is selected
 function updateCadetStatus(index, newStatus) {
-    const container = document.getElementById(`cadet${index}`);
-    if (!container) return;
+    const row = document.getElementById(`cadetRow${index}`);
+    if (!row) return;
 
-    container.setAttribute("data-status", newStatus);
+    // Update the HTML data attribute
+    row.setAttribute("data-status", newStatus);
+    
+    // Instantly update the row's background color class
+    row.className = "cadet-row present"; 
+    if (newStatus === "Permission") row.className = "cadet-row permission";
+    if (newStatus === "Late Fallin Permission") row.className = "cadet-row late-permission";
+    if (newStatus === "Absent") row.className = "cadet-row absent";
 
     // Save updated status to localStorage
     const savedStatuses = JSON.parse(
@@ -122,59 +134,6 @@ function updateCadetStatus(index, newStatus) {
     savedStatuses[index] = newStatus;
     localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
 }
-
-
-// Load Cadets button: saves current list permanently AND loads cards
-function loadCadets() {
-    persistNamesToStorage();
-    saveYear();
-    renderCadets();
-}
-
-// Save Names button: saves current list permanently AND loads/updates cards
-function saveCadets() {
-    persistNamesToStorage();
-    saveYear();
-    renderCadets();
-    alert("Cadet names and cards saved permanently.");
-}
-
-// Toggle card status and save it immediately so it survives page refresh
-/*function toggleStatus(index) {
-    const card = document.getElementById(`cadet${index}`);
-    const label = document.getElementById(`label${index}`);
-
-    if (!card || !label) return;
-
-    const current = card.getAttribute("data-status");
-    let nextStatus = "Present";
-    let nextClass = "cadet present";
-
-    if (current === "Present") {
-        nextStatus = "Permission";
-        nextClass = "cadet permission";
-    } else if (current === "Permission") {
-        nextStatus = "Late Fallin Permission";
-        nextClass = "cadet late-permission";
-    } else if (current === "Late Fallin Permission") {
-        nextStatus = "Absent";
-        nextClass = "cadet absent";
-    } else {
-        nextStatus = "Present";
-        nextClass = "cadet present";
-    }
-
-    card.setAttribute("data-status", nextStatus);
-    card.className = nextClass;
-    label.innerText = nextStatus;
-
-    // Save updated status for this cadet card
-    const savedStatuses = JSON.parse(
-        localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}"
-    );
-    savedStatuses[index] = nextStatus;
-    localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
-}*/
 
 function generateReport() {
     const year = document.getElementById("year").value;
