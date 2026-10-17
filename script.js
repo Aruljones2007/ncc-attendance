@@ -60,7 +60,6 @@ function renderCadets() {
     const names = getCleanCadetNames();
     let html = "";
 
-    // Safety check in case local storage data is corrupted
     let savedStatuses = {};
     try {
         savedStatuses = JSON.parse(localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}");
@@ -69,7 +68,8 @@ function renderCadets() {
     }
 
     names.forEach((name, index) => {
-        const status = savedStatuses[index] || "Present";
+        // FIX ISSUE 1: Pull status using the cadet's NAME, not the index
+        const status = savedStatuses[name] || "Present";
         
         let rowClass = "present";
         if (status === "Permission") rowClass = "permission";
@@ -119,6 +119,10 @@ function updateCadetStatus(index, newStatus) {
         if (newStatus === "Absent") row.className = "cadet-row absent";
     }
 
+    const names = getCleanCadetNames();
+    const name = names[index];
+    if (!name) return;
+
     let savedStatuses = {};
     try {
         savedStatuses = JSON.parse(localStorage.getItem(`cadetStatuses_${currentTab}`) || "{}");
@@ -126,11 +130,15 @@ function updateCadetStatus(index, newStatus) {
         savedStatuses = {};
     }
     
-    savedStatuses[index] = newStatus;
+    // FIX ISSUE 1: Save the status explicitly tied to the cadet's name
+    savedStatuses[name] = newStatus;
     localStorage.setItem(`cadetStatuses_${currentTab}`, JSON.stringify(savedStatuses));
+
+    // FIX ISSUE 3: Automatically regenerate the report whenever a status is clicked
+    generateReport();
 }
 
-// Fixed Report Generator: Reads directly from local storage memory
+// Generates the text report
 function generateReport() {
     const year = document.getElementById("year").value;
     const names = getCleanCadetNames();
@@ -151,8 +159,9 @@ function generateReport() {
     let latePermission = [];
     let absent = [];
 
-    names.forEach((name, index) => {
-        const status = savedStatuses[index] || "Present";
+    names.forEach((name) => {
+        // FIX ISSUE 1: Read the status tied to the cadet's name
+        const status = savedStatuses[name] || "Present";
 
         if (status === "Present") {
             present.push(name);
@@ -199,8 +208,17 @@ function generateReport() {
     localStorage.setItem(`cadetReport_${currentTab}`, finalReport);
 }
 
+// Bulk Reset
+function resetAllToPresent() {
+    if (confirm("Reset all cadets in this tab to Present?")) {
+        localStorage.removeItem(`cadetStatuses_${currentTab}`);
+        renderCadets();
+        generateReport(); // FIX ISSUE 3: Regenerate when reset
+        alert("All cadets reset to Present.");
+    }
+}
+
 function clearCadets() {
-    // Adds a warning prompt before deleting
     if (confirm("WARNING: This will delete all saved names, statuses, and reports for this tab. Are you sure?")) {
         localStorage.removeItem(`cadetNames_${currentTab}`);
         localStorage.removeItem(`cadetStatuses_${currentTab}`);
@@ -234,29 +252,13 @@ function fallbackCopy(element) {
     alert("Report copied successfully.");
 }
 
-// Bulk Reset: Clears all saved statuses for the current tab, defaulting everyone to Present
-function resetAllToPresent() {
-    if (confirm("Reset all cadets in this tab to Present?")) {
-        // Clearing the specific status memory forces the app to default to Present
-        localStorage.removeItem(`cadetStatuses_${currentTab}`);
-        renderCadets();
-        alert("All cadets reset to Present.");
-    }
-}
-
-// WhatsApp Sharing: Encodes the text and opens the WhatsApp app/web link
 function shareToWhatsApp() {
     const report = document.getElementById("report");
-    
     if (report.value.trim() === "") {
         alert("Generate a report first.");
         return;
     }
-    
-    // Convert the text format so URLs can read spaces and new lines
     const encodedText = encodeURIComponent(report.value);
-    
-    // Opens WhatsApp (works on both mobile app and desktop web)
     window.open(`https://wa.me/?text=${encodedText}`, '_blank');
 }
 
@@ -268,8 +270,14 @@ window.onload = function () {
 
     const yearInput = document.getElementById("year");
     if (yearInput) {
-        yearInput.addEventListener("input", saveYear);
-        yearInput.addEventListener("change", saveYear);
+        yearInput.addEventListener("input", function() {
+            saveYear();
+            generateReport(); // FIX ISSUE 3: Update report if year changes
+        });
+        yearInput.addEventListener("change", function() {
+            saveYear();
+            generateReport(); 
+        });
     }
 
     const cadetNamesInput = document.getElementById("cadetNames");
@@ -277,6 +285,7 @@ window.onload = function () {
         cadetNamesInput.addEventListener("input", function () {
             persistNamesToStorage();
             renderCadets();
+            generateReport(); // FIX ISSUE 3: Update report if names are added/removed
         });
     }
 
